@@ -48,3 +48,7 @@ BEGIN
         VALUES (play_id, '테트리스 게임', '다양한 블록들을 쌓아서 한 줄을 지우며 높은 점수를 획득하는 고전 게임입니다', '#', 'Game', '🧱');
     END IF;
 END $$;
+
+-- Row Level Security (RLS) 해제 (보안 정책 오류 해결용)
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE services DISABLE ROW LEVEL SECURITY;
