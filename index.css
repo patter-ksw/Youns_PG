@@ -45,18 +45,25 @@ body {
     margin: 0 auto;
 }
 
-/* Header (Edit button and Title on the same row) */
+/* Header (Edit button and Title on the same row, Title Centered) */
 header {
+    position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 30px; /* Reduced gap */
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     padding-bottom: 20px;
+    min-height: 80px;
 }
 
 .header-text {
-    text-align: left;
+    text-align: center;
+}
+
+header .btn {
+    position: absolute;
+    right: 0;
 }
 
 header h1 {
@@ -509,8 +516,12 @@ textarea.form-control {
     }
     header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 12px;
+        min-height: auto;
+    }
+    header .btn {
+        position: static;
     }
     header h1 {
         font-size: 1.8rem;
