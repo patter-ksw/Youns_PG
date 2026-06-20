@@ -25,7 +25,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
     def do_GET(self):
-        if self.path == '/config':
+        if self.path in ('/config', '/api/config'):
             env_config = load_env_file(HERE / '.env.local')
             # fallback to os.environ if not in .env.local
             url = env_config.get('SUPABASE_URL') or os.getenv('SUPABASE_URL', '')
