@@ -5,24 +5,34 @@ let services = [];
 let isEditMode = false;
 let searchQuery = "";
 
+// --- Supabase 설정 ---
+// sb_publishable_ 키는 공개용(클라이언트 전용) 키로, 코드에 포함해도 안전합니다.
+// 로컬 server.py의 /config 엔드포인트 또는 이 기본값을 사용합니다.
+const DEFAULT_SUPABASE_URL = 'https://elfgvesstuizdapwcpxx.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_RBvpOxgHiau8BfxNuwzUGA_uMYROtgS';
+
 // Initialize App
 async function initApp() {
-    try {
-        // Fetch Supabase configuration from local python server
-        const response = await fetch('/config');
-        if (!response.ok) {
-            throw new Error('서버로부터 설정을 가져오지 못했습니다.');
-        }
-        
-        const config = await response.json();
-        if (!config.SUPABASE_URL || !config.SUPABASE_KEY || config.SUPABASE_KEY.includes('your_supabase_anon_key_here')) {
-            renderError('Supabase API Key가 설정되지 않았습니다. .env.local 파일을 확인해 주세요.');
-            return;
-        }
+    let supabaseUrl = DEFAULT_SUPABASE_URL;
+    let supabaseKey = DEFAULT_SUPABASE_KEY;
 
+    try {
+        // 로컬 서버(server.py)에서 설정을 가져오되, 실패 시 기본값 사용
+        const response = await fetch('/config');
+        if (response.ok) {
+            const config = await response.json();
+            if (config.SUPABASE_URL) supabaseUrl = config.SUPABASE_URL;
+            if (config.SUPABASE_KEY) supabaseKey = config.SUPABASE_KEY;
+        }
+    } catch (e) {
+        // /config 엔드포인트 없을 시 기본값으로 계속 진행 (정적 배포 환경)
+        console.info('/config 엔드포인트 없음, 기본값 사용:', e.message);
+    }
+
+    try {
         // Initialize Supabase Client
         const { createClient } = window.supabase;
-        supabaseClient = createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
+        supabaseClient = createClient(supabaseUrl, supabaseKey);
 
         // Load Data
         await loadData();
@@ -30,7 +40,7 @@ async function initApp() {
         renderDashboard();
     } catch (error) {
         console.error(error);
-        renderError('서버 초기화 중 오류 발생: ' + error.message);
+        renderError('Supabase 초기화 중 오류 발생: ' + error.message);
     }
 }
 
