@@ -54,10 +54,10 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     border-bottom: 1px solid rgba(139, 92, 246, 0.08);
-    padding-bottom: 20px;
-    min-height: 80px;
+    padding-bottom: 12px;
+    min-height: 60px;
 }
 
 .header-text {
@@ -120,7 +120,7 @@ header p {
 /* Search Bar (Centered below header) */
 .search-container {
     max-width: 480px;
-    margin: 0 auto 25px auto; /* Reduced gap between search and categories */
+    margin: 0 auto 15px auto; /* Reduced gap between search and categories */
     position: relative;
 }
 
@@ -200,7 +200,7 @@ header p {
 .categories-list {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 18px;
 }
 
 /* Category Card */
@@ -208,7 +208,7 @@ header p {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    padding: 24px;
+    padding: 20px;
     backdrop-filter: blur(12px);
     box-shadow: var(--card-shadow);
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
@@ -223,9 +223,9 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     border-bottom: 2px solid rgba(139, 92, 246, 0.06);
-    padding-bottom: 12px;
+    padding-bottom: 8px;
 }
 
 .category-title {
