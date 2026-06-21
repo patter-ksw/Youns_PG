@@ -122,7 +122,7 @@ function setupEventListeners() {
 function renderIconHtml(iconStr, defaultIcon) {
     const icon = iconStr || defaultIcon;
     if (icon.startsWith('data:image/') || icon.startsWith('http')) {
-        return `<img src="${icon}" alt="icon" style="width: 1.2em; height: 1.2em; vertical-align: middle; object-fit: contain;">`;
+        return `<img src="${icon}" alt="icon" class="rendered-icon">`;
     }
     return icon;
 }

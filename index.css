@@ -241,6 +241,15 @@ header p {
 
 .category-icon {
     font-size: 1.3rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.category-icon .rendered-icon {
+    width: 1.3em;
+    height: 1.3em;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 .category-actions {
@@ -284,16 +293,23 @@ header p {
 
 .service-icon-container {
     background: rgba(139, 92, 246, 0.06);
-    border-radius: 8px;
-    width: 44px;
-    height: 44px;
+    border-radius: 14px;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    margin-right: 14px;
+    font-size: 1.8rem;
+    margin-right: 16px;
     flex-shrink: 0;
     border: 1px solid rgba(139, 92, 246, 0.1);
+    overflow: hidden;
+}
+
+.service-icon-container .rendered-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .service-content {
