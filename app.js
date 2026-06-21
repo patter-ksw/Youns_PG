@@ -78,21 +78,12 @@ function setupEventListeners() {
     // Toggle Edit Mode
     const btnToggleEdit = document.getElementById('btn-toggle-edit');
     btnToggleEdit.addEventListener('click', () => {
+        if (!currentUser || currentUser.username !== 'patter') {
+            alert("관리자 권한이 필요합니다. 'patter' 계정으로 로그인해주세요.");
+            return;
+        }
+
         if (!isEditMode) {
-            const id = prompt("관리자 ID를 입력하세요:");
-            if (id === null) return;
-            if (id !== "patter") {
-                alert("ID가 일치하지 않습니다.");
-                return;
-            }
-
-            const pw = prompt("관리자 패스워드를 입력하세요:");
-            if (pw === null) return;
-            if (pw !== "angel72") {
-                alert("패스워드가 일치하지 않습니다.");
-                return;
-            }
-
             isEditMode = true;
             btnToggleEdit.classList.add('active');
         } else {
@@ -511,14 +502,36 @@ window.switchAuthTab = function(tab) {
     }
 };
 
+function disableEditMode() {
+    if (isEditMode) {
+        isEditMode = false;
+        const btnToggleEdit = document.getElementById('btn-toggle-edit');
+        btnToggleEdit.classList.remove('active');
+        document.getElementById('add-category-section').style.display = 'none';
+        renderDashboard();
+    }
+}
+
 function updateAuthUI() {
+    const btnToggleEdit = document.getElementById('btn-toggle-edit');
+    
     if (currentUser) {
         document.getElementById('btn-login-modal').style.display = 'none';
         document.getElementById('user-info').style.display = 'flex';
         document.getElementById('user-nickname').innerText = currentUser.nickname;
+        
+        if (currentUser.username === 'patter') {
+            btnToggleEdit.style.display = 'block';
+        } else {
+            btnToggleEdit.style.display = 'none';
+            disableEditMode();
+        }
     } else {
         document.getElementById('btn-login-modal').style.display = 'block';
         document.getElementById('user-info').style.display = 'none';
+        btnToggleEdit.style.display = 'none';
+        
+        disableEditMode();
     }
 }
 

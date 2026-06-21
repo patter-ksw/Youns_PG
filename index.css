@@ -672,8 +672,8 @@ textarea.form-control {
 
 /* Board Modals */
 .modal-lg {
-    max-width: 600px;
-    max-height: 90vh;
+    max-width: 800px;
+    height: 85vh;
     display: flex;
     flex-direction: column;
 }
@@ -696,25 +696,31 @@ textarea.form-control {
 }
 
 .board-list li {
-    padding: 15px 10px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background: white;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .board-list li:hover {
-    background: var(--card-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
 }
 
 .board-list .post-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #211632;
-    margin-bottom: 5px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #311b92;
+    margin-bottom: 8px;
 }
 
 .board-list .post-meta {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     display: flex;
     justify-content: space-between;
