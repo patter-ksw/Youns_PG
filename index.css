@@ -586,8 +586,15 @@ textarea.form-control {
         align-items: center;
         gap: 12px;
         min-height: auto;
-        padding-left: 50px;
-        padding-right: 50px;
+        padding: 15px 10px;
+    }
+    .auth-section, .header-actions {
+        position: static;
+        width: 100%;
+        justify-content: center;
+    }
+    .auth-section {
+        margin-bottom: 5px;
     }
     header h1 {
         font-size: 1.8rem;
