@@ -118,6 +118,24 @@ function setupEventListeners() {
     document.getElementById('service-form').addEventListener('submit', handleServiceSubmit);
 }
 
+// Utilities for Icon
+function renderIconHtml(iconStr, defaultIcon) {
+    const icon = iconStr || defaultIcon;
+    if (icon.startsWith('data:image/') || icon.startsWith('http')) {
+        return `<img src="${icon}" alt="icon" style="width: 1.2em; height: 1.2em; vertical-align: middle; object-fit: contain;">`;
+    }
+    return icon;
+}
+
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
 // Render Error Message
 function renderError(message) {
     const container = document.getElementById('categories-container');
@@ -180,7 +198,7 @@ function renderDashboard() {
             <div class="category-card" data-category-id="${category.id}">
                 <div class="category-header">
                     <h2 class="category-title">
-                        <span class="category-icon">${category.icon || '📁'}</span>
+                        <span class="category-icon">${renderIconHtml(category.icon, '📁')}</span>
                         <span>${category.name}</span>
                     </h2>
                     <div class="category-actions">
@@ -199,7 +217,7 @@ function renderDashboard() {
             html += `
                 <a href="${linkUrl}" ${targetAttr} class="service-card">
                     <div class="service-icon-container">
-                        ${service.icon || '⚙️'}
+                        ${renderIconHtml(service.icon, '⚙️')}
                     </div>
                     <div class="service-content">
                         <div>
@@ -263,6 +281,7 @@ function showCategoryModal(id = null, name = '', icon = '') {
     document.getElementById('category-id').value = id || '';
     document.getElementById('category-name').value = name;
     document.getElementById('category-icon-input').value = icon || '📁';
+    document.getElementById('category-icon-file').value = '';
     openModal('category-modal');
 }
 
@@ -272,9 +291,14 @@ async function handleCategorySubmit(e) {
 
     const id = document.getElementById('category-id').value;
     const name = document.getElementById('category-name').value.trim();
-    const icon = document.getElementById('category-icon-input').value.trim();
+    let icon = document.getElementById('category-icon-input').value.trim();
+    const fileInput = document.getElementById('category-icon-file');
 
     try {
+        if (fileInput.files && fileInput.files.length > 0) {
+            icon = await readFileAsDataURL(fileInput.files[0]);
+        }
+
         let error = null;
         if (id) {
             // Update
@@ -333,6 +357,7 @@ window.showServiceModalForAdd = function(categoryId) {
     document.getElementById('service-url-input').value = '#';
     document.getElementById('service-badge-input').value = 'Plugin';
     document.getElementById('service-icon-input').value = '⚙️';
+    document.getElementById('service-icon-file').value = '';
     openModal('service-modal');
 };
 
@@ -345,6 +370,7 @@ window.showServiceModalForEdit = function(service) {
     document.getElementById('service-url-input').value = service.url || '#';
     document.getElementById('service-badge-input').value = service.badge || '';
     document.getElementById('service-icon-input').value = service.icon || '⚙️';
+    document.getElementById('service-icon-file').value = '';
     openModal('service-modal');
 };
 
@@ -358,9 +384,14 @@ async function handleServiceSubmit(e) {
     const description = document.getElementById('service-desc-input').value.trim();
     const url = document.getElementById('service-url-input').value.trim();
     const badge = document.getElementById('service-badge-input').value.trim();
-    const icon = document.getElementById('service-icon-input').value.trim();
+    let icon = document.getElementById('service-icon-input').value.trim();
+    const fileInput = document.getElementById('service-icon-file');
 
     try {
+        if (fileInput.files && fileInput.files.length > 0) {
+            icon = await readFileAsDataURL(fileInput.files[0]);
+        }
+
         let error = null;
         const payload = { category_id, title, description, url, badge, icon };
         
