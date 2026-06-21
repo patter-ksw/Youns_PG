@@ -77,14 +77,26 @@ function setupEventListeners() {
     // Toggle Edit Mode
     const btnToggleEdit = document.getElementById('btn-toggle-edit');
     btnToggleEdit.addEventListener('click', () => {
-        isEditMode = !isEditMode;
-        
-        // Update button UI
-        btnToggleEdit.innerHTML = isEditMode ? '<span>✔️</span> 편집 모드 끄기' : '<span>⚙️</span> 편집 모드 켜기';
-        if (isEditMode) {
-            btnToggleEdit.classList.add('btn-primary');
+        if (!isEditMode) {
+            const id = prompt("관리자 ID를 입력하세요:");
+            if (id === null) return;
+            if (id !== "patter") {
+                alert("ID가 일치하지 않습니다.");
+                return;
+            }
+
+            const pw = prompt("관리자 패스워드를 입력하세요:");
+            if (pw === null) return;
+            if (pw !== "angel72") {
+                alert("패스워드가 일치하지 않습니다.");
+                return;
+            }
+
+            isEditMode = true;
+            btnToggleEdit.classList.add('active');
         } else {
-            btnToggleEdit.classList.remove('btn-primary');
+            isEditMode = false;
+            btnToggleEdit.classList.remove('active');
         }
 
         // Toggle visibility of add category section
