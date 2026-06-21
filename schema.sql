@@ -52,3 +52,57 @@ END $$;
 -- Row Level Security (RLS) í•´ì œ (ë³´ì•ˆ ì •ì±… ì˜¤ë¥˜ í•´ê²°ìš©)
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE services DISABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- °Ô½ÃÆÇ ¹× »ç¿ëÀÚ ¿¬µ¿ (Youn's TR °øÅë)
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS tr_users (
+    id BIGSERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS tr_global_words (
+    id BIGSERIAL PRIMARY KEY,
+    word TEXT NOT NULL,
+    meaning TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS tr_user_words (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES tr_users(id) ON DELETE CASCADE,
+    word TEXT NOT NULL,
+    meaning TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS board_posts (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES tr_users(id) ON DELETE CASCADE,
+    nickname TEXT NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS board_replies (
+    id BIGSERIAL PRIMARY KEY,
+    post_id BIGINT REFERENCES board_posts(id) ON DELETE CASCADE,
+    parent_id BIGINT REFERENCES board_replies(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES tr_users(id) ON DELETE CASCADE,
+    nickname TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS ºñÈ°¼ºÈ­
+ALTER TABLE tr_users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tr_global_words DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tr_user_words DISABLE ROW LEVEL SECURITY;
+ALTER TABLE board_posts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE board_replies DISABLE ROW LEVEL SECURITY;
+

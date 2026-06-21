@@ -37,6 +37,7 @@ async function initApp() {
         // Load Data
         await loadData();
         setupEventListeners();
+        initAuth();
         renderDashboard();
     } catch (error) {
         console.error(error);
@@ -441,6 +442,398 @@ window.deleteService = async function(id) {
         alert('서비스를 삭제하지 못했습니다: ' + error.message);
     }
 };
+
+// --- Auth Logic ---
+let currentUser = null;
+let authTab = 'login'; // 'login' or 'signup'
+
+function initAuth() {
+    // Check localStorage for session (mock simple session)
+    const savedUser = localStorage.getItem('youns_tr_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        updateAuthUI();
+    }
+
+    document.getElementById('btn-login-modal').addEventListener('click', () => {
+        openModal('auth-modal');
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        currentUser = null;
+        localStorage.removeItem('youns_tr_user');
+        updateAuthUI();
+    });
+
+    document.getElementById('auth-form').addEventListener('submit', handleAuthSubmit);
+    
+    // Board init
+    document.getElementById('btn-board').addEventListener('click', () => {
+        if (!currentUser) {
+            openModal('auth-modal');
+        } else {
+            openModal('board-modal');
+            loadBoardPosts();
+        }
+    });
+
+    document.getElementById('btn-board-write').addEventListener('click', () => {
+        document.getElementById('board-write-form').reset();
+        document.getElementById('board-post-id').value = '';
+        document.getElementById('board-write-title').innerText = '글쓰기';
+        openModal('board-write-modal');
+    });
+
+    document.getElementById('board-write-form').addEventListener('submit', handleBoardSubmit);
+    document.getElementById('reply-form').addEventListener('submit', handleReplySubmit);
+    
+    document.getElementById('btn-edit-post').addEventListener('click', () => {
+        openModal('board-write-modal');
+        document.getElementById('board-write-title').innerText = '글 수정';
+    });
+
+    document.getElementById('btn-delete-post').addEventListener('click', deleteCurrentPost);
+}
+
+window.switchAuthTab = function(tab) {
+    authTab = tab;
+    document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.auth-tab[onclick*="${tab}"]`).classList.add('active');
+    
+    if (tab === 'signup') {
+        document.getElementById('auth-nickname-group').style.display = 'block';
+        document.getElementById('auth-nickname').required = true;
+        document.getElementById('btn-auth-submit').innerText = '회원가입';
+    } else {
+        document.getElementById('auth-nickname-group').style.display = 'none';
+        document.getElementById('auth-nickname').required = false;
+        document.getElementById('btn-auth-submit').innerText = '로그인';
+    }
+};
+
+function updateAuthUI() {
+    if (currentUser) {
+        document.getElementById('btn-login-modal').style.display = 'none';
+        document.getElementById('user-info').style.display = 'flex';
+        document.getElementById('user-nickname').innerText = currentUser.nickname;
+    } else {
+        document.getElementById('btn-login-modal').style.display = 'block';
+        document.getElementById('user-info').style.display = 'none';
+    }
+}
+
+async function handleAuthSubmit(e) {
+    e.preventDefault();
+    if (!supabaseClient) return;
+
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+
+    try {
+        if (authTab === 'login') {
+            const { data, error } = await supabaseClient
+                .from('tr_users')
+                .select('*')
+                .eq('username', username)
+                .eq('password', password)
+                .single();
+                
+            if (error || !data) {
+                alert('로그인 실패: 아이디와 비밀번호를 확인하세요.');
+                return;
+            }
+            currentUser = data;
+        } else {
+            const nickname = document.getElementById('auth-nickname').value.trim();
+            const { data: existing } = await supabaseClient.from('tr_users').select('id').eq('username', username).single();
+            if (existing) {
+                alert('이미 존재하는 아이디입니다.');
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('tr_users')
+                .insert([{ username, password, nickname }])
+                .select()
+                .single();
+                
+            if (error) throw error;
+            currentUser = data;
+        }
+
+        localStorage.setItem('youns_tr_user', JSON.stringify(currentUser));
+        updateAuthUI();
+        closeModal('auth-modal');
+        document.getElementById('auth-form').reset();
+    } catch (error) {
+        console.error('Auth error:', error);
+        alert('인증 처리 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+// --- Board Logic ---
+let currentBoardPosts = [];
+let currentPostDetail = null;
+
+async function loadBoardPosts() {
+    if (!supabaseClient) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('board_posts')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        currentBoardPosts = data || [];
+        renderBoardList();
+    } catch (error) {
+        console.error('Error loading board:', error);
+    }
+}
+
+function renderBoardList() {
+    const list = document.getElementById('board-list');
+    if (currentBoardPosts.length === 0) {
+        list.innerHTML = '<li style="text-align: center; color: var(--text-muted);">등록된 게시글이 없습니다.</li>';
+        return;
+    }
+    list.innerHTML = currentBoardPosts.map(post => `
+        <li onclick="openPostDetail(${post.id})">
+            <div class="post-title">${escapeHtml(post.title)}</div>
+            <div class="post-meta">
+                <span>👤 ${escapeHtml(post.nickname)}</span>
+                <span>${new Date(post.created_at).toLocaleString()}</span>
+            </div>
+        </li>
+    `).join('');
+}
+
+async function handleBoardSubmit(e) {
+    e.preventDefault();
+    if (!supabaseClient || !currentUser) return;
+
+    const id = document.getElementById('board-post-id').value;
+    const title = document.getElementById('board-title').value.trim();
+    const content = document.getElementById('board-content').value.trim();
+
+    try {
+        let error = null;
+        if (id) {
+            const { error: err } = await supabaseClient
+                .from('board_posts')
+                .update({ title, content })
+                .eq('id', id);
+            error = err;
+        } else {
+            const { error: err } = await supabaseClient
+                .from('board_posts')
+                .insert([{ 
+                    user_id: currentUser.id, 
+                    nickname: currentUser.nickname, 
+                    title, 
+                    content 
+                }]);
+            error = err;
+        }
+
+        if (error) throw error;
+        closeModal('board-write-modal');
+        loadBoardPosts();
+        
+        // If editing, also update the detail modal
+        if (id && currentPostDetail && currentPostDetail.id == id) {
+            currentPostDetail.title = title;
+            currentPostDetail.content = content;
+            renderPostDetail();
+        }
+    } catch (error) {
+        alert('게시글 저장 오류: ' + error.message);
+    }
+}
+
+window.openPostDetail = async function(postId) {
+    const post = currentBoardPosts.find(p => p.id == postId);
+    if (!post) return;
+    
+    currentPostDetail = post;
+    renderPostDetail();
+    openModal('board-detail-modal');
+    loadReplies(postId);
+};
+
+function renderPostDetail() {
+    if (!currentPostDetail) return;
+    document.getElementById('detail-title').innerText = currentPostDetail.title;
+    document.getElementById('detail-nickname').innerText = currentPostDetail.nickname;
+    document.getElementById('detail-date').innerText = new Date(currentPostDetail.created_at).toLocaleString();
+    document.getElementById('detail-content').innerText = currentPostDetail.content;
+    
+    // Setup Edit form if user owns it
+    document.getElementById('board-post-id').value = currentPostDetail.id;
+    document.getElementById('board-title').value = currentPostDetail.title;
+    document.getElementById('board-content').value = currentPostDetail.content;
+
+    const isOwner = currentUser && currentUser.id === currentPostDetail.user_id;
+    const isAdmin = currentUser && currentUser.username === 'patter';
+    
+    const actionsEl = document.getElementById('detail-actions');
+    const editBtn = document.getElementById('btn-edit-post');
+    
+    if (isOwner || isAdmin) {
+        actionsEl.style.display = 'flex';
+        // Only owner can edit (or admin if you want, but usually owner edits)
+        editBtn.style.display = isOwner ? 'block' : 'none';
+    } else {
+        actionsEl.style.display = 'none';
+    }
+}
+
+async function deleteCurrentPost() {
+    if (!currentPostDetail || !supabaseClient) return;
+    if (!confirm('게시글을 삭제하시겠습니까?')) return;
+
+    try {
+        const { error } = await supabaseClient.from('board_posts').delete().eq('id', currentPostDetail.id);
+        if (error) throw error;
+        
+        closeModal('board-detail-modal');
+        loadBoardPosts();
+    } catch (error) {
+        alert('삭제 오류: ' + error.message);
+    }
+}
+
+// --- Replies Logic ---
+let currentReplies = [];
+
+async function loadReplies(postId) {
+    document.getElementById('replies-list').innerHTML = '<div style="text-align:center;color:gray;">로딩중...</div>';
+    try {
+        const { data, error } = await supabaseClient
+            .from('board_replies')
+            .select('*')
+            .eq('post_id', postId)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        currentReplies = data || [];
+        renderReplies();
+    } catch (error) {
+        console.error('Replies load error:', error);
+    }
+}
+
+function renderReplies() {
+    const list = document.getElementById('replies-list');
+    if (currentReplies.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">첫 번째 댓글을 남겨보세요.</div>';
+        return;
+    }
+
+    // Build tree (1-depth visually, parent-child logic)
+    const rootReplies = currentReplies.filter(r => !r.parent_id);
+    const repliesByParent = {};
+    currentReplies.forEach(r => {
+        if (r.parent_id) {
+            if (!repliesByParent[r.parent_id]) repliesByParent[r.parent_id] = [];
+            repliesByParent[r.parent_id].push(r);
+        }
+    });
+
+    let html = '';
+    rootReplies.forEach(root => {
+        html += renderReplyHTML(root, false);
+        if (repliesByParent[root.id]) {
+            repliesByParent[root.id].forEach(child => {
+                html += renderReplyHTML(child, true);
+            });
+        }
+    });
+
+    list.innerHTML = html;
+}
+
+function renderReplyHTML(reply, isNested) {
+    const isAdmin = currentUser && currentUser.username === 'patter';
+    const isOwner = currentUser && currentUser.id === reply.user_id;
+    const canDelete = isOwner || isAdmin;
+    
+    return `
+        <div class="reply-item ${isNested ? 'nested' : ''}">
+            <div class="reply-meta">
+                <span style="font-weight:600;font-size:0.85rem;color:#311b92;">${escapeHtml(reply.nickname)}</span>
+                <span style="font-size:0.75rem;color:var(--text-muted);">${new Date(reply.created_at).toLocaleString()}</span>
+            </div>
+            <div class="reply-content">${escapeHtml(reply.content)}</div>
+            <div style="margin-top:5px; text-align:right;">
+                ${!isNested ? `<button type="button" class="btn-text" style="font-size:0.75rem;" onclick="replyTo(${reply.id}, '${escapeHtml(reply.nickname)}')">답글</button>` : ''}
+                ${canDelete ? `<button type="button" class="btn-text" style="font-size:0.75rem; color:var(--danger-color); margin-left:8px;" onclick="deleteReply(${reply.id})">삭제</button>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+window.replyTo = function(parentId, nickname) {
+    document.getElementById('reply-parent-id').value = parentId;
+    document.getElementById('replying-to-indicator').style.display = 'block';
+    document.getElementById('replying-to-name').innerText = nickname;
+    document.getElementById('reply-content').focus();
+};
+
+window.cancelReplyTo = function() {
+    document.getElementById('reply-parent-id').value = '';
+    document.getElementById('replying-to-indicator').style.display = 'none';
+};
+
+async function handleReplySubmit(e) {
+    e.preventDefault();
+    if (!supabaseClient || !currentUser || !currentPostDetail) return;
+
+    const content = document.getElementById('reply-content').value.trim();
+    const parentId = document.getElementById('reply-parent-id').value;
+
+    try {
+        const { error } = await supabaseClient.from('board_replies').insert([{
+            post_id: currentPostDetail.id,
+            parent_id: parentId ? parseInt(parentId) : null,
+            user_id: currentUser.id,
+            nickname: currentUser.nickname,
+            content
+        }]);
+
+        if (error) throw error;
+        
+        document.getElementById('reply-content').value = '';
+        cancelReplyTo();
+        loadReplies(currentPostDetail.id);
+    } catch (error) {
+        alert('댓글 등록 오류: ' + error.message);
+    }
+}
+
+window.deleteReply = async function(id) {
+    if (!confirm('댓글을 삭제하시겠습니까?')) return;
+    try {
+        const { error } = await supabaseClient.from('board_replies').delete().eq('id', id);
+        if (error) throw error;
+        loadReplies(currentPostDetail.id);
+    } catch (error) {
+        alert('삭제 오류: ' + error.message);
+    }
+};
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
 
 // Start App when DOM is loaded
 document.addEventListener('DOMContentLoaded', initApp);
