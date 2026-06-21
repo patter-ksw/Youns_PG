@@ -576,33 +576,7 @@ textarea.form-control {
     border: 1px dashed rgba(139, 92, 246, 0.2);
 }
 
-/* Responsive adjust */
-@media (max-width: 650px) {
-    body {
-        padding: 20px 12px;
-    }
-    header {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        min-height: auto;
-        padding: 15px 10px;
-    }
-    .auth-section, .header-actions {
-        position: static;
-        width: 100%;
-        justify-content: center;
-    }
-    .auth-section {
-        margin-bottom: 5px;
-    }
-    header h1 {
-        font-size: 1.8rem;
-    }
-    .services-grid {
-        grid-template-columns: 1fr;
-    }
-}
+
 
 /* Auth Section */
 .auth-section {
@@ -822,4 +796,35 @@ textarea.form-control {
 .reply-input-group textarea {
     flex: 1;
     min-height: 60px;
+}
+
+/* Responsive adjust */
+@media (max-width: 650px) {
+    body {
+        padding: 20px 12px;
+    }
+    header {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        min-height: auto;
+        padding: 15px 10px;
+    }
+    .auth-section, .header-actions {
+        position: static !important;
+        width: 100%;
+        justify-content: center;
+    }
+    .auth-section {
+        margin-bottom: 5px;
+    }
+    header h1 {
+        font-size: 1.8rem;
+    }
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-lg {
+        height: 95vh;
+    }
 }
