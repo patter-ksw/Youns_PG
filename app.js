@@ -518,7 +518,7 @@ function updateAuthUI() {
     if (currentUser) {
         document.getElementById('btn-login-modal').style.display = 'none';
         document.getElementById('user-info').style.display = 'flex';
-        document.getElementById('user-nickname').innerText = currentUser.nickname;
+        document.getElementById('user-nickname').innerText = currentUser.nickname || currentUser.username;
         
         if (currentUser.username === 'patter') {
             btnToggleEdit.style.display = 'block';
@@ -642,7 +642,7 @@ async function handleBoardSubmit(e) {
                 .from('board_posts')
                 .insert([{ 
                     user_id: currentUser.id, 
-                    nickname: currentUser.nickname, 
+                    nickname: currentUser.nickname || currentUser.username, 
                     title, 
                     content 
                 }]);
@@ -810,7 +810,7 @@ async function handleReplySubmit(e) {
             post_id: currentPostDetail.id,
             parent_id: parentId ? parseInt(parentId) : null,
             user_id: currentUser.id,
-            nickname: currentUser.nickname,
+            nickname: currentUser.nickname || currentUser.username,
             content
         }]);
 
