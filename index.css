@@ -502,7 +502,22 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 15px;
     margin-bottom: 20px;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 4px;
 }
 
 .modal-title {

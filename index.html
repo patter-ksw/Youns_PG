@@ -184,21 +184,23 @@
                 <h3 class="modal-title" id="board-write-title">글쓰기</h3>
                 <button class="modal-close" onclick="closeModal('board-write-modal')">&times;</button>
             </div>
-            <form id="board-write-form">
-                <input type="hidden" id="board-post-id">
-                <div class="form-group">
-                    <label for="board-title">제목</label>
-                    <input type="text" id="board-title" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="board-content">내용</label>
-                    <textarea id="board-content" class="form-control" style="min-height: 200px;" required></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" onclick="closeModal('board-write-modal')">취소</button>
-                    <button type="submit" class="btn btn-primary">저장</button>
-                </div>
-            </form>
+            <div class="modal-body">
+                <form id="board-write-form">
+                    <input type="hidden" id="board-post-id">
+                    <div class="form-group">
+                        <label for="board-title">제목</label>
+                        <input type="text" id="board-title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="board-content">내용</label>
+                        <textarea id="board-content" class="form-control" style="min-height: 200px;" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn" onclick="closeModal('board-write-modal')">취소</button>
+                        <button type="submit" class="btn btn-primary">저장</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -209,33 +211,35 @@
                 <h3 class="modal-title" id="detail-title">제목</h3>
                 <button class="modal-close" onclick="closeModal('board-detail-modal')">&times;</button>
             </div>
-            <div class="board-detail-meta">
-                <span id="detail-nickname" class="badge"></span>
-                <span id="detail-date" class="date-text"></span>
-            </div>
-            <div class="board-detail-content" id="detail-content"></div>
-            
-            <div class="board-detail-actions" id="detail-actions" style="display: none;">
-                <button class="btn btn-small" id="btn-edit-post">수정</button>
-                <button class="btn btn-small btn-danger" id="btn-delete-post">삭제</button>
-            </div>
-
-            <hr class="board-divider">
-
-            <div class="board-replies-section">
-                <h4>댓글</h4>
-                <div id="replies-list" class="replies-list"></div>
+            <div class="modal-body">
+                <div class="board-detail-meta">
+                    <span id="detail-nickname" class="badge"></span>
+                    <span id="detail-date" class="date-text"></span>
+                </div>
+                <div class="board-detail-content" id="detail-content"></div>
                 
-                <form id="reply-form" class="reply-form">
-                    <input type="hidden" id="reply-parent-id" value="">
-                    <div class="reply-input-group">
-                        <textarea id="reply-content" class="form-control" placeholder="댓글을 남겨보세요..." required></textarea>
-                        <button type="submit" class="btn btn-primary">등록</button>
-                    </div>
-                    <div id="replying-to-indicator" style="display: none; font-size: 0.8rem; color: var(--accent-purple); margin-top: 5px;">
-                        <span id="replying-to-name"></span>님에게 답글 작성 중 <button type="button" class="btn-text" onclick="cancelReplyTo()">취소</button>
-                    </div>
-                </form>
+                <div class="board-detail-actions" id="detail-actions" style="display: none;">
+                    <button class="btn btn-small" id="btn-edit-post">수정</button>
+                    <button class="btn btn-small btn-danger" id="btn-delete-post">삭제</button>
+                </div>
+
+                <hr class="board-divider">
+
+                <div class="board-replies-section">
+                    <h4>댓글</h4>
+                    <div id="replies-list" class="replies-list"></div>
+                    
+                    <form id="reply-form" class="reply-form">
+                        <input type="hidden" id="reply-parent-id" value="">
+                        <div class="reply-input-group">
+                            <textarea id="reply-content" class="form-control" placeholder="댓글을 남겨보세요..." required></textarea>
+                            <button type="submit" class="btn btn-primary">등록</button>
+                        </div>
+                        <div id="replying-to-indicator" style="display: none; font-size: 0.8rem; color: var(--accent-purple); margin-top: 5px;">
+                            <span id="replying-to-name"></span>님에게 답글 작성 중 <button type="button" class="btn-text" onclick="cancelReplyTo()">취소</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
