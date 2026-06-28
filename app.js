@@ -498,7 +498,9 @@ window.switchAuthTab = function(tab) {
     
     if (tab === 'signup') {
         document.getElementById('btn-check-username').style.display = 'block';
+        document.getElementById('btn-check-username').className = 'btn btn-check-pending';
         document.getElementById('btn-check-nickname').style.display = 'block';
+        document.getElementById('btn-check-nickname').className = 'btn btn-check-pending';
         document.getElementById('auth-nickname-group').style.display = 'block';
         document.getElementById('auth-nickname').required = true;
         document.getElementById('btn-auth-submit').innerText = '회원가입';
@@ -512,6 +514,24 @@ window.switchAuthTab = function(tab) {
         document.getElementById('auth-nickname-group').style.display = 'none';
         document.getElementById('auth-nickname').required = false;
         document.getElementById('btn-auth-submit').innerText = '로그인';
+    }
+};
+
+window.resetUsernameCheck = function() {
+    isUsernameChecked = false;
+    checkedUsername = "";
+    const btn = document.getElementById('btn-check-username');
+    if (btn) {
+        btn.className = 'btn btn-check-pending';
+    }
+};
+
+window.resetNicknameCheck = function() {
+    isNicknameChecked = false;
+    checkedNickname = "";
+    const btn = document.getElementById('btn-check-nickname');
+    if (btn) {
+        btn.className = 'btn btn-check-pending';
     }
 };
 
@@ -538,12 +558,13 @@ window.checkUsername = async function() {
 
         if (existing) {
             alert('동일한 아이디가 사용중입니다.');
-            isUsernameChecked = false;
-            checkedUsername = "";
+            window.resetUsernameCheck();
         } else {
             alert('사용 가능한 아이디입니다.');
             isUsernameChecked = true;
             checkedUsername = username;
+            const btn = document.getElementById('btn-check-username');
+            btn.className = 'btn btn-check-done';
         }
     } catch (error) {
         console.error('Check error:', error);
@@ -574,12 +595,13 @@ window.checkNickname = async function() {
 
         if (existing) {
             alert('동일한 닉네임이 사용중입니다.');
-            isNicknameChecked = false;
-            checkedNickname = "";
+            window.resetNicknameCheck();
         } else {
             alert('사용 가능한 닉네임입니다.');
             isNicknameChecked = true;
             checkedNickname = nickname;
+            const btn = document.getElementById('btn-check-nickname');
+            btn.className = 'btn btn-check-done';
         }
     } catch (error) {
         console.error('Check error:', error);

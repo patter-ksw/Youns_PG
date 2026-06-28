@@ -176,6 +176,25 @@ header p {
     border-color: var(--accent-purple);
 }
 
+.btn-check-pending {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--accent-purple);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+.btn-check-pending:hover {
+    background: rgba(139, 92, 246, 0.25);
+    transform: translateY(-2px);
+}
+
+.btn-check-done {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border: 1px solid #e5e7eb;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: default;
+}
+
 .btn-primary {
     background: var(--accent-purple);
     border-color: var(--accent-purple);
@@ -706,6 +725,11 @@ textarea.form-control {
     transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(139, 92, 246, 0.1);
     border-color: rgba(139, 92, 246, 0.3);
+}
+
+.board-list li.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .board-list .post-title {
