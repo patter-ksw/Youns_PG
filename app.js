@@ -488,6 +488,8 @@ function initAuth() {
 
 let isUsernameChecked = false;
 let checkedUsername = "";
+let isNicknameChecked = false;
+let checkedNickname = "";
 
 window.switchAuthTab = function(tab) {
     authTab = tab;
@@ -496,13 +498,17 @@ window.switchAuthTab = function(tab) {
     
     if (tab === 'signup') {
         document.getElementById('btn-check-username').style.display = 'block';
+        document.getElementById('btn-check-nickname').style.display = 'block';
         document.getElementById('auth-nickname-group').style.display = 'block';
         document.getElementById('auth-nickname').required = true;
         document.getElementById('btn-auth-submit').innerText = '회원가입';
         isUsernameChecked = false;
         checkedUsername = "";
+        isNicknameChecked = false;
+        checkedNickname = "";
     } else {
         document.getElementById('btn-check-username').style.display = 'none';
+        document.getElementById('btn-check-nickname').style.display = 'none';
         document.getElementById('auth-nickname-group').style.display = 'none';
         document.getElementById('auth-nickname').required = false;
         document.getElementById('btn-auth-submit').innerText = '로그인';
@@ -538,6 +544,42 @@ window.checkUsername = async function() {
             alert('사용 가능한 아이디입니다.');
             isUsernameChecked = true;
             checkedUsername = username;
+        }
+    } catch (error) {
+        console.error('Check error:', error);
+        alert('오류가 발생했습니다.');
+    }
+};
+
+window.checkNickname = async function() {
+    if (!supabaseClient) return;
+    const nickname = document.getElementById('auth-nickname').value.trim();
+    if (!nickname) {
+        alert('닉네임을 입력해주세요.');
+        return;
+    }
+    
+    try {
+        const { data: existing, error } = await supabaseClient
+            .from('tr_users')
+            .select('id')
+            .eq('nickname', nickname)
+            .maybeSingle();
+            
+        if (error) {
+            console.error('Check error:', error);
+            alert('중복 확인 중 오류가 발생했습니다.');
+            return;
+        }
+
+        if (existing) {
+            alert('동일한 닉네임이 사용중입니다.');
+            isNicknameChecked = false;
+            checkedNickname = "";
+        } else {
+            alert('사용 가능한 닉네임입니다.');
+            isNicknameChecked = true;
+            checkedNickname = nickname;
         }
     } catch (error) {
         console.error('Check error:', error);
@@ -606,6 +648,11 @@ async function handleAuthSubmit(e) {
             }
 
             const nickname = document.getElementById('auth-nickname').value.trim();
+
+            if (!isNicknameChecked || checkedNickname !== nickname) {
+                alert('먼저 닉네임 중복 확인을 해주세요.');
+                return;
+            }
 
             const { data, error } = await supabaseClient
                 .from('tr_users')
