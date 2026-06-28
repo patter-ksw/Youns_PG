@@ -486,19 +486,62 @@ function initAuth() {
     document.getElementById('btn-delete-post').addEventListener('click', deleteCurrentPost);
 }
 
+let isUsernameChecked = false;
+let checkedUsername = "";
+
 window.switchAuthTab = function(tab) {
     authTab = tab;
     document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
     document.querySelector(`.auth-tab[onclick*="${tab}"]`).classList.add('active');
     
     if (tab === 'signup') {
+        document.getElementById('btn-check-username').style.display = 'block';
         document.getElementById('auth-nickname-group').style.display = 'block';
         document.getElementById('auth-nickname').required = true;
         document.getElementById('btn-auth-submit').innerText = '회원가입';
+        isUsernameChecked = false;
+        checkedUsername = "";
     } else {
+        document.getElementById('btn-check-username').style.display = 'none';
         document.getElementById('auth-nickname-group').style.display = 'none';
         document.getElementById('auth-nickname').required = false;
         document.getElementById('btn-auth-submit').innerText = '로그인';
+    }
+};
+
+window.checkUsername = async function() {
+    if (!supabaseClient) return;
+    const username = document.getElementById('auth-username').value.trim();
+    if (!username) {
+        alert('아이디를 입력해주세요.');
+        return;
+    }
+    
+    try {
+        const { data: existing, error } = await supabaseClient
+            .from('tr_users')
+            .select('id')
+            .eq('username', username)
+            .maybeSingle();
+            
+        if (error) {
+            console.error('Check error:', error);
+            alert('중복 확인 중 오류가 발생했습니다.');
+            return;
+        }
+
+        if (existing) {
+            alert('동일한 아이디가 사용중입니다.');
+            isUsernameChecked = false;
+            checkedUsername = "";
+        } else {
+            alert('사용 가능한 아이디입니다.');
+            isUsernameChecked = true;
+            checkedUsername = username;
+        }
+    } catch (error) {
+        console.error('Check error:', error);
+        alert('오류가 발생했습니다.');
     }
 };
 
@@ -557,12 +600,12 @@ async function handleAuthSubmit(e) {
             }
             currentUser = data;
         } else {
-            const nickname = document.getElementById('auth-nickname').value.trim();
-            const { data: existing } = await supabaseClient.from('tr_users').select('id').eq('username', username).single();
-            if (existing) {
-                alert('이미 존재하는 아이디입니다.');
+            if (!isUsernameChecked || checkedUsername !== username) {
+                alert('먼저 아이디 중복 확인을 해주세요.');
                 return;
             }
+
+            const nickname = document.getElementById('auth-nickname').value.trim();
 
             const { data, error } = await supabaseClient
                 .from('tr_users')
