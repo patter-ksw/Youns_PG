@@ -146,16 +146,16 @@
                         <button type="button" id="btn-check-username" class="btn btn-check-pending" style="display: none; white-space: nowrap;" onclick="checkUsername()">중복확인</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="auth-password">비밀번호</label>
-                    <input type="password" id="auth-password" class="form-control" placeholder="비밀번호를 입력하세요" required>
-                </div>
                 <div class="form-group" id="auth-nickname-group" style="display: none;">
                     <label for="auth-nickname">닉네임</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="auth-nickname" class="form-control" placeholder="사용할 닉네임을 입력하세요" oninput="resetNicknameCheck()">
                         <button type="button" id="btn-check-nickname" class="btn btn-check-pending" style="display: none; white-space: nowrap;" onclick="checkNickname()">중복확인</button>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="auth-password">비밀번호</label>
+                    <input type="password" id="auth-password" class="form-control" placeholder="비밀번호를 입력하세요" required>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeModal('auth-modal')">취소</button>
