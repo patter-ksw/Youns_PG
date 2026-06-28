@@ -656,7 +656,7 @@ async function handleAuthSubmit(e) {
 
             const { data, error } = await supabaseClient
                 .from('tr_users')
-                .insert([{ username, password, nickname }])
+                .insert([{ username, password, nickname, name: nickname }])
                 .select()
                 .single();
                 
